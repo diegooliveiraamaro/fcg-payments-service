@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Payments.Api.Infrastructure.Events;
 using Payments.Api.Infrastructure.Persistence;
+using System.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,14 +27,26 @@ builder.Services.AddScoped<EventStore>();
 
 var app = builder.Build();
 
-// Swagger SEM restrição de ambiente (necessário para ECS)
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+if (Debugger.IsAttached)
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Payments API v1");
-    c.RoutePrefix = "swagger";
-});
-
+    // Swagger SEM restrição de ambiente (necessário para ECS)
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Payments API v1");
+        c.RoutePrefix = "swagger";
+    });
+}
+else
+{
+    // Swagger SEM restrição de ambiente (necessário para ECS)
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/payments/swagger/v1/swagger.json", "Payments API v1");
+        c.RoutePrefix = "swagger";
+    });
+}
 app.UseRouting();
 app.UseAuthorization();
 
