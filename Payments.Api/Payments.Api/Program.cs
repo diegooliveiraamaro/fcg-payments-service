@@ -1,13 +1,17 @@
+using Amazon.EventBridge;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Payments.Api.Infrastructure.Events;
 using Payments.Api.Infrastructure.Persistence;
 using System.Diagnostics;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -24,6 +28,8 @@ builder.Services.AddDbContext<PaymentsDbContext>(options =>
 );
 
 builder.Services.AddScoped<EventStore>();
+builder.Services.AddAWSService<IAmazonEventBridge>();
+builder.Services.AddScoped<EventBridgePublisher>();
 
 var app = builder.Build();
 

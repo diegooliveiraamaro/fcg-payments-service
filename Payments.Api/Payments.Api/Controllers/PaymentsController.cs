@@ -12,11 +12,13 @@ public class PaymentsController : ControllerBase
 {
     private readonly PaymentsDbContext _db;
     private readonly EventStore _eventStore;
+    private readonly EventBridgePublisher _publisher;
 
-    public PaymentsController(PaymentsDbContext db, EventStore eventStore)
+    public PaymentsController(PaymentsDbContext db, EventStore eventStore, EventBridgePublisher publisher)
     {
         _db = db;
         _eventStore = eventStore;
+        _publisher = publisher;
     }
 
     [HttpPost]
@@ -35,15 +37,16 @@ public class PaymentsController : ControllerBase
         _db.Payments.Add(payment);
         await _db.SaveChangesAsync();
 
-        // Evento de pagamento criado
-        _eventStore.Add(new
+        var paymentCreatedEvent = new PaymentCreatedEvent
         {
-            Type = "PaymentCreated",
             PaymentId = payment.Id,
-            payment.UserId,
-            payment.GameId,
-            payment.Amount
-        });
+            UserId = payment.UserId,
+            GameId = payment.GameId,
+            Amount = payment.Amount
+        };
+
+        await _eventStore.SaveAsync(paymentCreatedEvent);
+        await _publisher.PublishAsync(paymentCreatedEvent);
 
         // Simulação de aprovação
         payment.Status = PaymentStatus.Approved;

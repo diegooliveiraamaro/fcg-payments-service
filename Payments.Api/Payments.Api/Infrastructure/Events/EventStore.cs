@@ -1,14 +1,28 @@
-﻿namespace Payments.Api.Infrastructure.Events;
+﻿using Payments.Api.Infrastructure.Persistence;
+using System.Text.Json;
+
+namespace Payments.Api.Infrastructure.Events;
 
 public class EventStore
 {
-    private readonly List<object> _events = new();
+    private readonly PaymentsDbContext _db;
 
-    public void Add(object @event)
+    public EventStore(PaymentsDbContext db)
     {
-        _events.Add(@event);
+        _db = db;
     }
 
-    public IReadOnlyCollection<object> GetAll()
-        => _events.AsReadOnly();
+    public async Task SaveAsync(IEvent @event)
+    {
+        var storedEvent = new StoredEvent
+        {
+            Id = @event.Id,
+            Type = @event.Type,
+            OccurredAt = @event.OccurredAt,
+            Data = JsonSerializer.Serialize(@event)
+        };
+
+        _db.Set<StoredEvent>().Add(storedEvent);
+        await _db.SaveChangesAsync();
+    }
 }
