@@ -33,53 +33,26 @@ builder.Services.AddScoped<EventBridgePublisher>();
 
 var app = builder.Build();
 
-//if (Debugger.IsAttached)
-//{
-//    // Swagger SEM restrição de ambiente (necessário para ECS)
-//    app.UseSwagger();
-//    app.UseSwaggerUI(c =>
-//    {
-//        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Payments API v1");
-//        c.RoutePrefix = "swagger";
-//    });
-//}
-//else
-//{
-//    // Swagger SEM restrição de ambiente (necessário para ECS)
-//    app.UseSwagger();
-//    app.UseSwaggerUI(c =>
-//    {
-//        c.SwaggerEndpoint("/payments/swagger/v1/swagger.json", "Payments API v1");
-//        c.RoutePrefix = "swagger";
-//    });
-//}
-
 if (Debugger.IsAttached)
 {
-
+    // Swagger SEM restrição de ambiente (necessário para ECS)
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Users API v1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Payments API v1");
         c.RoutePrefix = "swagger";
     });
 }
 else
 {
-
-    app.UseSwagger(c =>
-    {
-        c.RouteTemplate = "payments/swagger/{documentName}/swagger.json";
-    });
-
+    // Swagger SEM restrição de ambiente (necessário para ECS)
+    app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/payments/swagger/v1/swagger.json", "Users API v1");
-        c.RoutePrefix = "users/swagger";
+        c.SwaggerEndpoint("/payments/swagger/v1/swagger.json", "Payments API v1");
+        c.RoutePrefix = "swagger";
     });
 }
-
-
 app.UseRouting();
 app.UseAuthorization();
 
