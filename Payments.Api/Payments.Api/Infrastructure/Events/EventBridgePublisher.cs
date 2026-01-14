@@ -12,8 +12,7 @@ public class EventBridgePublisher
     {
         _eventBridge = eventBridge;
     }
-
-    public async Task PublishAsync(IEvent @event)
+    public async Task PublishAsync(PaymentCreatedEvent evt)
     {
         var request = new PutEventsRequest
         {
@@ -22,13 +21,26 @@ public class EventBridgePublisher
                 new()
                 {
                     Source = "fcg.payments",
-                    DetailType = @event.Type,
-                    Detail = JsonSerializer.Serialize(@event),
-                    EventBusName = "default"
+                    DetailType ="PaymentCreated",                  
+                    EventBusName = "fcg-event-bus",
+                     Detail = JsonSerializer.Serialize(new
+                    {
+                        evt.PaymentId,
+                        evt.UserId,
+                        evt.GameId,
+                        evt.Amount
+                    })
                 }
             }
         };
 
-        await _eventBridge.PutEventsAsync(request);
+        var response = await _eventBridge.PutEventsAsync(request);
+
+        if (response.FailedEntryCount > 0)
+        {
+            throw new Exception(
+                $"Erro ao publicar evento: {JsonSerializer.Serialize(response.Entries)}"
+            );
+        }
     }
 }

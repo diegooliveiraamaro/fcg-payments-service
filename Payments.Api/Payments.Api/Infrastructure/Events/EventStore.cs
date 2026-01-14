@@ -5,24 +5,23 @@ namespace Payments.Api.Infrastructure.Events;
 
 public class EventStore
 {
-    private readonly PaymentsDbContext _db;
+    private readonly PaymentsDbContext _context;
 
-    public EventStore(PaymentsDbContext db)
+    public EventStore(PaymentsDbContext context)
     {
-        _db = db;
+        _context = context;
     }
 
     public async Task SaveAsync(IEvent @event)
     {
         var storedEvent = new StoredEvent
         {
-            Id = @event.Id,
-            Type = @event.Type,
-            OccurredAt = @event.OccurredAt,
-            Data = JsonSerializer.Serialize(@event)
+            Type = @event.GetType().Name,
+            Data = JsonSerializer.Serialize(@event),
+            OccurredOn = DateTime.UtcNow
         };
 
-        _db.Set<StoredEvent>().Add(storedEvent);
-        await _db.SaveChangesAsync();
+        _context.StoredEvents.Add(storedEvent);
+        await _context.SaveChangesAsync();
     }
 }
