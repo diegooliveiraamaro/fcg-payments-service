@@ -24,7 +24,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddDbContext<PaymentsDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
 );
 
 builder.Services.AddScoped<EventStore>();
@@ -63,6 +63,13 @@ app.MapGet("/health", () => Results.Ok("Healthy"));
 
 // ESSENCIAL para Docker / ECS
 app.Urls.Add("http://0.0.0.0:80");
+
+// MIGRATION
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<PaymentsDbContext>();
+    db.Database.Migrate();
+}
 
 app.Run();
 
