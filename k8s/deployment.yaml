@@ -23,9 +23,9 @@ spec:
                 name: payments-config
             - secretRef:
                 name: payments-secret
-                env:
-  - name: ConnectionStrings__DefaultConnection
-    valueFrom:
-      secretKeyRef:
-        name: payments-secret
-        key: CONNECTION_STRING
+          env:
+            - name: ConnectionStrings__Default
+              valueFrom:
+                secretKeyRef:
+                  name: payments-secret
+                  key: CONNECTION_STRING
