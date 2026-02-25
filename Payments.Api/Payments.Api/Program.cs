@@ -21,7 +21,7 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddDbContext<PaymentsDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
 );
-
+builder.Services.AddSingleton<RabbitPublisher>();
 builder.Services.AddScoped<EventStore>();
 
 var app = builder.Build();
